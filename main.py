@@ -1,52 +1,63 @@
-from gui import GUI
-from yapper import setUpChannel, tearDownChannel
+#from yapper import setUpChannel, tearDownChannel
 import dearpygui.dearpygui as dpg
-import time
+import time, apps, bse
 
-from canlib import canlib, Frame
+#from canlib import canlib, Frame
+
+def save_callback():
+    #send all changed can parameters to the vcu, then initiate a flash write
+    pass
 
 if __name__ == '__main__':
-    GUI.init()
+    dpg.create_context()
 
-    ch0 = setUpChannel(0)
+    with dpg.font_registry():
+        default_font = dpg.add_font("ComicMono-Bold.ttf", 20)
+        header_font = dpg.add_font("ComicMono-Bold.ttf", 30)
+        title_font = dpg.add_font("ComicMono-Bold.ttf", 45)
 
-    ch0.write(Frame(id_=8, data=[0]))
+    with dpg.window(label="MainWindow") as main_window:
+        dpg.bind_font(default_font)
+        dpg.bind_item_font(dpg.add_text("V67 VCU Reprogrammer"), title_font)
+        dpg.add_separator()
+        with dpg.group(horizontal=True):
+            with dpg.group(width=200):
+                dpg.add_button()
+            with dpg.group():
+                dpg.bind_item_font(dpg.add_text("Sensors"), header_font)
 
+                cb = dpg.add_checkbox(label="Calibration")
+
+                with dpg.group(horizontal=True):
+                    APPS1 = apps.APPS_Display("APPS 1")
+                    APPS2 = apps.APPS_Display("APPS 2")
+                    APPS3 = apps.APPS_Display("APPS 3")
+                    APPS4 = apps.APPS_Display("APPS 4")
+                    FBSE  = bse.BSE_Display("FBSE")
+                    RBSE  = bse.BSE_Display("RBSE")
+
+                def callback():
+                    if not dpg.get_value(cb): return
+                    APPS1.reset_bounds()
+                    APPS2.reset_bounds()
+                    APPS3.reset_bounds()
+                    APPS4.reset_bounds()
+
+                dpg.set_item_callback(cb, callback=callback)
+
+    dpg.create_viewport(title='Hello', min_width=1000, min_height=700)
+    dpg.setup_dearpygui()
+    dpg.show_viewport()
+    
+    dpg.set_primary_window(main_window, True)
+    
     while dpg.is_dearpygui_running():
         dpg.render_dearpygui_frame()
-
-        if GUI.WRITE_QUEUE == True:
-            GUI.WRITE_QUEUE = False
-            
-            ch0.write(Frame(id_=6, data=GUI.get_bytestr()))
-            ch0.write(Frame(id_=7, data=GUI.get_bytestr_t()))
-
-        try:
-            while (frame := ch0.read()) is not canlib.canNoMsg:
-                match frame.id:
-                    case 1:
-                        apps2 = int.from_bytes(frame.data[0:2], byteorder='little')
-                        apps1 = int.from_bytes(frame.data[6:8], byteorder='little')
-                        GUI.recalc(apps1, apps2)
-                    case 9:
-                        apps1_min = int.from_bytes(frame.data[0:2], byteorder='little')
-                        apps1_max = int.from_bytes(frame.data[2:4], byteorder='little')
-                        apps2_min = int.from_bytes(frame.data[4:6], byteorder='little')
-                        apps2_max = int.from_bytes(frame.data[6:8], byteorder='little')
-                        GUI.adj_vals(apps1_min, apps1_max, apps2_min, apps2_max)
-                        print(apps1_min, apps1_max, apps2_min, apps2_max)
-                    case 10:
-                        max_tr = int.from_bytes(frame.data[0:2], byteorder='little')
-                        max_rg = int.from_bytes(frame.data[2:4], byteorder='little')
-                        min_rgs = int.from_bytes(frame.data[4:6], byteorder='little')
-                        brakes = int.from_bytes(frame.data[6:8], byteorder='little')
-                        GUI.adj_torque(max_tr, max_rg, min_rgs, brakes)
-                        print(max_tr)
-        except (canlib.canNoMsg) as ex:
-            pass
-        except (canlib.canError) as ex:
-            print(ex)
-
+        # TODO: get vals from can
+        APPS1.update_vals(dpg.get_value(cb)) 
+        APPS2.update_vals(dpg.get_value(cb))
+        APPS3.update_vals(dpg.get_value(cb))
+        APPS4.update_vals(dpg.get_value(cb))
     
+    dpg.destroy_context()   
 
-    GUI.destroy()
