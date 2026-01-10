@@ -1,4 +1,5 @@
-#from yapper import setUpChannel, tearDownChannel
+from yapper import setUpChannel, tearDownChannel
+from canlib import canlib
 import dearpygui.dearpygui as dpg
 import time, apps, bse
 
@@ -50,10 +51,29 @@ if __name__ == '__main__':
     dpg.show_viewport()
     
     dpg.set_primary_window(main_window, True)
+
+    ch = setUpChannel()
     
     while dpg.is_dearpygui_running():
         dpg.render_dearpygui_frame()
+
         # TODO: get vals from can
+        try:
+            frame = ch.read()
+
+            match frame.id:
+                case 0x101:
+                    v = memoryview(frame.data)
+                    print(v[:16])
+                case 0x102:
+                    pass
+                case _:
+                    pass
+
+        except canlib.CanNoMsg:
+            #print("CanNoMsg")
+            pass
+
         APPS1.update_vals(dpg.get_value(cb)) 
         APPS2.update_vals(dpg.get_value(cb))
         APPS3.update_vals(dpg.get_value(cb))
