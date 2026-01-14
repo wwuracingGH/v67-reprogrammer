@@ -58,7 +58,6 @@ if __name__ == '__main__':
     while dpg.is_dearpygui_running():
         dpg.render_dearpygui_frame()
 
-        # TODO: get vals from can
         try:
             frame = ch.read()
 
@@ -70,13 +69,14 @@ if __name__ == '__main__':
                     APPS3.update_vals(new_val=apps_vals[2])
                     APPS4.update_vals(new_val=apps_vals[3])
                 case 0x102:
-                    pass
+                    bse_vals = struct.unpack("<2H", frame.data)
+                    FBSE.update_vals(new_val=bse_vals[0])
+                    RBSE.update_vals(new_val=bse_vals[1])
                 case _:
                     pass
 
         except canlib.CanNoMsg:
-            #print("CanNoMsg")
-            pass
+            pass 
 
         APPS1.update_vals(dpg.get_value(cb)) 
         APPS2.update_vals(dpg.get_value(cb))
