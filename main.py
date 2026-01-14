@@ -77,6 +77,8 @@ if __name__ == '__main__':
 
         except canlib.CanNoMsg:
             pass 
+        except struct.error:
+            print("Message Data is the wrong size")
 
         APPS1.update_vals(dpg.get_value(cb)) 
         APPS2.update_vals(dpg.get_value(cb))
