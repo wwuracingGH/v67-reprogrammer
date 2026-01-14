@@ -1,6 +1,7 @@
 from yapper import setUpChannel, tearDownChannel
 from canlib import canlib
 import dearpygui.dearpygui as dpg
+import struct
 import time, apps, bse
 
 #from canlib import canlib, Frame
@@ -63,8 +64,11 @@ if __name__ == '__main__':
 
             match frame.id:
                 case 0x101:
-                    v = memoryview(frame.data)
-                    print(v[:16])
+                    apps_vals = struct.unpack("<4H", frame.data)
+                    APPS1.update_vals(new_val=apps_vals[0])
+                    APPS2.update_vals(new_val=apps_vals[1])
+                    APPS3.update_vals(new_val=apps_vals[2])
+                    APPS4.update_vals(new_val=apps_vals[3])
                 case 0x102:
                     pass
                 case _:
