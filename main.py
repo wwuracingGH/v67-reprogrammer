@@ -11,13 +11,17 @@ def save_callback():
     pass
 
 def process_vcu_state_message(display_item, frame_data):
-                    state_vals = struct.unpack("<BBH", frame_data)
-                    active_state = state_vals[0]
-                    fault_counter = state_vals[1] & 0x7F
-                    APPS_BSE_plaus_latch = state_vals[1] & 0x80
-                    last_valid_torque_request = state_vals[2]
-                    vcu_state_display_string = "Active State: " + str(active_state ) + " Fault Counter: " + str(fault_counter ) + " APPS/BSE Plaus Latch: " + str(APPS_BSE_plaus_latch )+ " Last Valid Torque Request: " + str(last_valid_torque_request)
-                    dpg.set_value(display_item, vcu_state_display_string)
+    state_vals = struct.unpack("<BBH", frame_data)
+    active_state = state_vals[0]
+    fault_counter = state_vals[1] & 0x7F
+    APPS_BSE_plaus_latch = state_vals[1] & 0x80
+    last_valid_torque_request = state_vals[2]
+
+    states = ["Idle", "Init", "Ready to Drive", "Reset"]
+    APPS_BSE_plaus_latch_string = str(APPS_BSE_plaus_latch >0)
+
+    vcu_state_display_string = "Active State: " + states[active_state] + "\nFault Counter: " + str(fault_counter ) + " \nAPPS/BSE Plaus Latch: " + APPS_BSE_plaus_latch_string + " \nLast Valid Torque Request: " + str(last_valid_torque_request)
+    dpg.set_value(display_item, vcu_state_display_string)
 
 if __name__ == '__main__':
     dpg.create_context()
