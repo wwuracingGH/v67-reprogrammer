@@ -10,6 +10,28 @@ def save_callback():
     #send all changed can parameters to the vcu, then initiate a flash write
     pass
 
+def process_control_vector_message(display_item, frame_data):
+    vector_vals = struct.unpack("<4H", frame_data)
+    flags = ""
+    if((frame_data[0] & 0x1) > 0):
+        flags+= "Negative Torque Request "
+
+    # if((frame_data[0] & 0x1000) > 0):
+    #     flags+="Brake Sensor Encoder Error "
+
+    # if((frame_data[0] & 0x2000 )> 0):
+    #     flags+="APPS/BSE Plausibility "
+
+    # if((frame_data[0] & 0x4000 )> 0):
+    #     flags+="APPS Delta "
+        
+    # if((frame_data[0] & 0x8000 )> 0):
+    #     flags+="APPS Bounds "
+
+    # print(flags)
+    control_vector_display_string = "Flags: " + flags + "\nTorque Request: " + str(vector_vals[1]) + "\nRear Brake Pressure: " + str(vector_vals[2]) + "\nFront Brake Pressure: " + str(vector_vals[3])
+    dpg.set_value(display_item, control_vector_display_string)
+
 def process_vcu_state_message(display_item, frame_data):
     state_vals = struct.unpack("<BBH", frame_data)
     active_state = state_vals[0]
@@ -43,6 +65,7 @@ if __name__ == '__main__':
 
                 cb = dpg.add_checkbox(label="Calibration")
                 vcu_state = dpg.add_text("Not yet recieved", label="VCU State")
+                control_vector = dpg.add_text("Not yet recieved", label="Control Vector")
 
                 with dpg.group(horizontal=True):
                     APPS1 = apps.APPS_Display("APPS 1")
@@ -86,6 +109,8 @@ if __name__ == '__main__':
                     bse_vals = struct.unpack("<2H", frame.data)
                     FBSE.update_vals(new_val=bse_vals[0])
                     RBSE.update_vals(new_val=bse_vals[1])
+                case 0x103:
+                    process_control_vector_message(control_vector, frame.data)
                 case 0x104:
                     process_vcu_state_message(vcu_state, frame.data)
                 case _:
