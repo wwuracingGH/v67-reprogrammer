@@ -10,6 +10,15 @@ def save_callback():
     #send all changed can parameters to the vcu, then initiate a flash write
     pass
 
+def process_vcu_state_message(display_item, frame_data):
+                    state_vals = struct.unpack("<BBH", frame_data)
+                    active_state = state_vals[0]
+                    fault_counter = state_vals[1] & 0x7F
+                    APPS_BSE_plaus_latch = state_vals[1] & 0x80
+                    last_valid_torque_request = state_vals[2]
+                    vcu_state_display_string = "Active State: " + str(active_state ) + " Fault Counter: " + str(fault_counter ) + " APPS/BSE Plaus Latch: " + str(APPS_BSE_plaus_latch )+ " Last Valid Torque Request: " + str(last_valid_torque_request)
+                    dpg.set_value(display_item, vcu_state_display_string)
+
 if __name__ == '__main__':
     dpg.create_context()
 
@@ -29,6 +38,7 @@ if __name__ == '__main__':
                 dpg.bind_item_font(dpg.add_text("Sensors"), header_font)
 
                 cb = dpg.add_checkbox(label="Calibration")
+                vcu_state = dpg.add_text("Not yet recieved", label="VCU State")
 
                 with dpg.group(horizontal=True):
                     APPS1 = apps.APPS_Display("APPS 1")
@@ -72,6 +82,8 @@ if __name__ == '__main__':
                     bse_vals = struct.unpack("<2H", frame.data)
                     FBSE.update_vals(new_val=bse_vals[0])
                     RBSE.update_vals(new_val=bse_vals[1])
+                case 0x104:
+                    process_vcu_state_message(vcu_state, frame.data)
                 case _:
                     pass
 
