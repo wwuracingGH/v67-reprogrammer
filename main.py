@@ -12,23 +12,23 @@ def save_callback():
 
 def process_control_vector_message(display_item, frame_data):
     vector_vals = struct.unpack("<4H", frame_data)
+    
     flags = ""
-    if((frame_data[0] & 0x1) > 0):
-        flags+= "Negative Torque Request "
+    if((vector_vals[0] & 0x1) > 0):
+        flags+= "Negative Torque Request,"
+    
+    if((vector_vals[0] & (0x1 << 12)) > 0):
+        flags+="Brake Sensor Encoder Error,"
 
-    # if((frame_data[0] & 0x1000) > 0):
-    #     flags+="Brake Sensor Encoder Error "
+    if((vector_vals[0] & (0x1 << 13))> 0):
+        flags+="APPS/BSE Plausibility,"
 
-    # if((frame_data[0] & 0x2000 )> 0):
-    #     flags+="APPS/BSE Plausibility "
-
-    # if((frame_data[0] & 0x4000 )> 0):
-    #     flags+="APPS Delta "
+    if((vector_vals[0] & (0x1 << 14) )> 0):
+        flags+="APPS Delta,"
         
-    # if((frame_data[0] & 0x8000 )> 0):
-    #     flags+="APPS Bounds "
+    if((vector_vals[0] & (0x1 << 15) )> 0):
+        flags+="APPS Bounds,"
 
-    # print(flags)
     control_vector_display_string = "Flags: " + flags + "\nTorque Request: " + str(vector_vals[1]) + "\nRear Brake Pressure: " + str(vector_vals[2]) + "\nFront Brake Pressure: " + str(vector_vals[3])
     dpg.set_value(display_item, control_vector_display_string)
 
@@ -119,7 +119,7 @@ if __name__ == '__main__':
         except canlib.CanNoMsg:
             pass 
         except struct.error:
-            print("Message Data is the wrong size")
+            print("Message Data is the wrong size: " + str(frame.id))
 
         APPS1.update_vals(dpg.get_value(cb)) 
         APPS2.update_vals(dpg.get_value(cb))
