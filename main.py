@@ -1,4 +1,4 @@
-from yapper import setUpChannel, tearDownChannel
+from yapper import setUpChannel, tearDownChannel, sendParameterChange, requestParameterValue
 from canlib import canlib
 import dearpygui.dearpygui as dpg
 import struct
@@ -47,7 +47,7 @@ def process_vcu_state_message(display_item, frame_data):
 
 if __name__ == '__main__':
     dpg.create_context()
-
+    ch = setUpChannel()
     with dpg.font_registry():
         default_font = dpg.add_font("ComicMono-Bold.ttf", 20)
         header_font = dpg.add_font("ComicMono-Bold.ttf", 30)
@@ -59,7 +59,23 @@ if __name__ == '__main__':
         dpg.add_separator()
         with dpg.group(horizontal=True):
             with dpg.group(width=200):
-                dpg.add_button()
+                with dpg.group():
+                    param_id = dpg.add_input_int(label="Parameter ID\nDecimal", min_value=0, max_value=14)
+                    param_value = dpg.add_input_int(label="Parameter Value\nDecimal")
+                    do_write = dpg.add_checkbox(label="Write to Flash?")
+                    param_send_button = dpg.add_button(label="SEND", 
+                                                       callback=lambda : sendParameterChange(
+                                                           ch, 
+                                                           dpg.get_value(param_id),
+                                                           dpg.get_value(param_value),
+                                                           dpg.get_value(do_write)
+                                                       ))
+                    value_set_on_vcu = dpg.add_text("Not yet requested", label="Value On VCU")
+                    param_request_button = dpg.add_button(label="Request Current Value",
+                                                          callback=lambda : requestParameterValue(
+                                                              ch,
+                                                              dpg.get_value(param_id)
+                                                          ))
             with dpg.group():
                 dpg.bind_item_font(dpg.add_text("Sensors"), header_font)
 
@@ -90,7 +106,7 @@ if __name__ == '__main__':
     
     dpg.set_primary_window(main_window, True)
 
-    ch = setUpChannel()
+    
     
     while dpg.is_dearpygui_running():
         dpg.render_dearpygui_frame()
@@ -113,6 +129,9 @@ if __name__ == '__main__':
                     process_control_vector_message(control_vector, frame.data)
                 case 0x104:
                     process_vcu_state_message(vcu_state, frame.data)
+                case 0x105:
+                    recieved_data = struct.unpack(">IH", frame.data)
+                    dpg.set_value(value_set_on_vcu, str(recieved_data[0]) + ", id: " + str(recieved_data[1]))
                 case _:
                     pass
 
