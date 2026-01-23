@@ -18,13 +18,13 @@ def tearDownChannel(ch):
     ch.close()
 
 def sendParameterChange(ch: canlib.Channel, param_id: int, value:int, write=False):
-    assert param_id < 15, "Invalid Parameter ID"
-    assert param_id != 11, "Invalid Parameter ID"
-    assert value < (1 << 32), "Value too big"
-    param_id = param_id | (int(write) << 15)
-    data = struct.pack(">IHH",value, param_id, 0x00)
+    if param_id < 15 and param_id != 11 and value < (1 << 32):
+        param_id = param_id | (int(write) << 15)
+        data = struct.pack(">IHH",value, param_id, 0x00)
 
-    ch.write(Frame(0x106, data))
+        ch.write(Frame(0x106, data))
+    else:
+        print("Invalid Parameter ID or Value")
 
 def requestParameterValue(ch: canlib.Channel, param_id: int):
     assert param_id < 15, "Invalid Parameter ID"
