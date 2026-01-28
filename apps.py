@@ -4,6 +4,8 @@
 import math
 import dearpygui.dearpygui as dpg
 
+DEADBAND = 10
+
 def quick_remap(a1,a2,b1,b2,t):
     if a1 == a2: return 0
     if a1 == None or a2 == None: return 0
@@ -39,8 +41,8 @@ class APPS_Display():
             self.val = new_val
             
         if calibrating:
-            self.min = min(self.min, self.val)
-            self.max = max(self.max, self.val)
+            self.min = min(self.min, self.val - DEADBAND)
+            self.max = max(self.max, self.val + DEADBAND)
             
             dpg.set_value(self.min_tb, self.min)
             dpg.set_value(self.max_tb, self.max)
