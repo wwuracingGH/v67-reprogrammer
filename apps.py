@@ -41,8 +41,8 @@ class APPS_Display():
             self.val = new_val
             
         if calibrating:
-            self.min = min(self.min, self.val - DEADBAND)
-            self.max = max(self.max, self.val + DEADBAND)
+            self.min = min(self.min, self.val + DEADBAND)
+            self.max = max(self.max, self.val - DEADBAND)
             
             dpg.set_value(self.min_tb, self.min)
             dpg.set_value(self.max_tb, self.max)
