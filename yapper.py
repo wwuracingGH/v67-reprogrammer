@@ -5,7 +5,7 @@ from canlib.canlib import ChannelData
 def setUpChannel(channel=1,
                  openFlags=canlib.Open.ACCEPT_VIRTUAL,
                  outputControl=canlib.Driver.NORMAL):
-    ch = canlib.openChannel(channel, openFlags, bitrate=canlib.Bitrate.BITRATE_250K)
+    ch = canlib.openChannel(channel, openFlags, bitrate=canlib.Bitrate.BITRATE_1M)
     print("Using channel: %s, EAN: %s" % (ChannelData(channel).channel_name,
                                           ChannelData(channel).card_upc_no))
     ch.setBusOutputControl(outputControl)
@@ -32,3 +32,4 @@ def requestParameterValue(ch: canlib.Channel, param_id: int):
     data = struct.pack(">H", param_id)
 
     ch.write(Frame(id_=0x107, data=data))
+
