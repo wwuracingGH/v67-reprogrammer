@@ -7,6 +7,7 @@ import dearpygui.dearpygui as dpg
 DEADBAND = 10
 
 def quick_remap(a1,a2,b1,b2,t):
+    if (t is None): return 0
     if a1 == a2: return 0
     if a1 == None or a2 == None: return 0
     return ((t - a1) / (a2 - a1)) * (b2 - b1) + b1     
@@ -15,12 +16,22 @@ class APPS_Display():
     def update_slider(self):
         self.val = dpg.get_value(self.slider)
         
-    def update_min(self):
-        self.min = dpg.get_value(self.min_tb)
+    def update_min(self, newval=None):
+        if (newval is None):
+            newval = dpg.get_value(self.min_tb)
+        else:
+            dpg.set_value(self.min_tb, newval)
+
+        self.min = newval
         self.recalc_render()
 
-    def update_max(self):
-        self.max = dpg.get_value(self.max_tb)
+    def update_max(self, newval=None):
+        if (newval is None):
+            newval = dpg.get_value(self.max_tb)
+        else:
+            dpg.set_value(self.max_tb, newval)
+        print(newval)
+        self.max = newval
         self.recalc_render()
         
     def recalc_render(self):

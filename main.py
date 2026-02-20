@@ -109,14 +109,29 @@ if __name__ == '__main__':
 
                 dpg.set_item_callback(cb, callback=callback)
 
-    dpg.create_viewport(title='Hello', min_width=1000, min_height=700)
+    dpg.create_viewport(title='V67-reprogrammer', min_width=1000, min_height=700)
     dpg.setup_dearpygui()
     dpg.show_viewport()
+
+    requestParameterValue(ch, 0)
+    time.sleep(0.01)
+    requestParameterValue(ch, 1)
+    time.sleep(0.01)
+    requestParameterValue(ch, 2)
+    time.sleep(0.01)
+    requestParameterValue(ch, 3)
+    time.sleep(0.01)
+    requestParameterValue(ch, 4)
+    time.sleep(0.01)
+    requestParameterValue(ch, 5)
+    time.sleep(0.01)
+    requestParameterValue(ch, 6)
+    time.sleep(0.01)
+    requestParameterValue(ch, 7)
+    time.sleep(0.01)
     
     dpg.set_primary_window(main_window, True)
 
-    
-    
     while dpg.is_dearpygui_running():
         dpg.render_dearpygui_frame()
 
@@ -139,7 +154,7 @@ if __name__ == '__main__':
                 case 0x104:
                     process_vcu_state_message(vcu_state, frame.data)
                 case 0x105:
-                    recieved_data = struct.unpack(">IH", frame.data)
+                    recieved_data = struct.unpack("<IH", frame.data)
                     match recieved_data[1]:
                         case 12:
                             dpg.set_value(current_max_torque_on_vcu, recieved_data[0])
@@ -147,6 +162,22 @@ if __name__ == '__main__':
                             dpg.set_value(current_hard_braking_threshold_on_vcu, recieved_data[0])
                         case 11:
                             dpg.set_value(title, "Nicole sent me parameter 11 which does not exist.")
+                        case 0:
+                            APPS1.update_min(recieved_data[0])
+                        case 1:
+                            APPS1.update_max(recieved_data[0])
+                        case 2:
+                            APPS2.update_min(recieved_data[0])
+                        case 3:
+                            APPS2.update_max(recieved_data[0])
+                        case 4:
+                            APPS3.update_min(recieved_data[0])
+                        case 5:
+                            APPS3.update_max(recieved_data[0])
+                        case 6:
+                            APPS4.update_min(recieved_data[0])
+                        case 7:
+                            APPS4.update_max(recieved_data[0])
                         case _:
                             pass
                 case _:
