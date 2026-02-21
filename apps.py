@@ -65,6 +65,18 @@ class APPS_Display():
         self.min = 4096
         self.max = 0 
     
+    def get_max(self):
+        if dpg.get_value(self.swap_check):
+            return self.min
+        else:
+            return self.max
+        
+    def get_min(self):
+        if dpg.get_value(self.swap_check):
+            return self.max
+        else:
+            return self.min
+    
     def __init__(self, name):
         self.min = 0
         self.max = 4096
@@ -74,6 +86,7 @@ class APPS_Display():
             with dpg.group():
                 self.name_text = dpg.add_text(name)
                 self.val_text = dpg.add_text("0%")
+                self.swap_check = dpg.add_checkbox(label="Reverse Min/Max")
                 
                 with dpg.group(horizontal=True):
                     self.slider = dpg.add_slider_int(vertical=True, max_value=4092, height=300, width=50, callback = self.update_slider)

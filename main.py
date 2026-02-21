@@ -64,14 +64,15 @@ if __name__ == '__main__':
             with dpg.group(width=200):
                 with dpg.group():
                     param_send_button = dpg.add_button(label="Write to VCU Flash", 
-                                                       callback=lambda: save_callback(ch,{                                                                                                   0:APPS1.min,
-                                                            1:APPS1.max,
-                                                            2:APPS2.min,
-                                                            3:APPS2.max,
-                                                            4:APPS3.min,
-                                                            5:APPS3.max,
-                                                            6:APPS4.min,
-                                                            7:APPS4.max,
+                                                       callback=lambda: save_callback(ch,{
+                                                            0:APPS1.get_min(),
+                                                            1:APPS1.get_max(),
+                                                            2:APPS2.get_max(),
+                                                            3:APPS2.get_max(),
+                                                            4:APPS3.get_min(),
+                                                            5:APPS3.get_max(),
+                                                            6:APPS4.get_min(),
+                                                            7:APPS4.get_max(),
                                                             12:dpg.get_value(max_torque),
                                                             13:dpg.get_value(hard_braking_threshold),
                                                         }))
