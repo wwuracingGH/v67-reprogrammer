@@ -2,7 +2,7 @@ import struct
 from canlib import canlib, Frame
 from canlib.canlib import ChannelData
 
-def setUpChannel(channel=0,
+def setUpChannel(channel=1,
                  openFlags=canlib.Open.ACCEPT_VIRTUAL,
                  outputControl=canlib.Driver.NORMAL):
     ch = canlib.openChannel(channel, openFlags, bitrate=canlib.Bitrate.BITRATE_1M)
