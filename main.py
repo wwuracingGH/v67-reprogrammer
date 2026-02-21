@@ -133,55 +133,56 @@ if __name__ == '__main__':
     dpg.set_primary_window(main_window, True)
 
     while dpg.is_dearpygui_running():
-        dpg.render_dearpygui_frame()
 
         try:
             frame = ch.read()
 
-            match frame.id:
-                case 0x101:
-                    apps_vals = struct.unpack("<4H", frame.data)
-                    APPS1.update_vals(new_val=apps_vals[0])
-                    APPS2.update_vals(new_val=apps_vals[1])
-                    APPS3.update_vals(new_val=apps_vals[2])
-                    APPS4.update_vals(new_val=apps_vals[3])
-                case 0x102:
-                    bse_vals = struct.unpack("<2H", frame.data)
-                    FBSE.update_vals(new_val=bse_vals[0])
-                    RBSE.update_vals(new_val=bse_vals[1])
-                case 0x103:
-                    process_control_vector_message(control_vector, frame.data)
-                case 0x104:
-                    process_vcu_state_message(vcu_state, frame.data)
-                case 0x105:
-                    recieved_data = struct.unpack("<IH", frame.data)
-                    match recieved_data[1]:
-                        case 12:
-                            dpg.set_value(current_max_torque_on_vcu, recieved_data[0])
-                        case 13:
-                            dpg.set_value(current_hard_braking_threshold_on_vcu, recieved_data[0])
-                        case 11:
-                            dpg.set_value(title, "Nicole sent me parameter 11 which does not exist.")
-                        case 0:
-                            APPS1.update_min(recieved_data[0])
-                        case 1:
-                            APPS1.update_max(recieved_data[0])
-                        case 2:
-                            APPS2.update_min(recieved_data[0])
-                        case 3:
-                            APPS2.update_max(recieved_data[0])
-                        case 4:
-                            APPS3.update_min(recieved_data[0])
-                        case 5:
-                            APPS3.update_max(recieved_data[0])
-                        case 6:
-                            APPS4.update_min(recieved_data[0])
-                        case 7:
-                            APPS4.update_max(recieved_data[0])
-                        case _:
-                            pass
-                case _:
-                    pass
+            if frame.id <= 0x107 or frame.id >= 0x101:
+                match frame.id:
+                    case 0x101:
+                        apps_vals = struct.unpack("<4H", frame.data)
+                        APPS1.update_vals(new_val=apps_vals[0])
+                        APPS2.update_vals(new_val=apps_vals[1])
+                        APPS3.update_vals(new_val=apps_vals[2])
+                        APPS4.update_vals(new_val=apps_vals[3])
+                        dpg.render_dearpygui_frame()
+                    case 0x102:
+                        bse_vals = struct.unpack("<2H", frame.data)
+                        FBSE.update_vals(new_val=bse_vals[0])
+                        RBSE.update_vals(new_val=bse_vals[1])
+                    case 0x103:
+                        process_control_vector_message(control_vector, frame.data)
+                    case 0x104:
+                        process_vcu_state_message(vcu_state, frame.data)
+                    case 0x105:
+                        recieved_data = struct.unpack("<IH", frame.data)
+                        match recieved_data[1]:
+                            case 12:
+                                dpg.set_value(current_max_torque_on_vcu, recieved_data[0])
+                            case 13:
+                                dpg.set_value(current_hard_braking_threshold_on_vcu, recieved_data[0])
+                            case 11:
+                                dpg.set_value(title, "Nicole sent me parameter 11 which does not exist.")
+                            case 0:
+                                APPS1.update_min(recieved_data[0])
+                            case 1:
+                                APPS1.update_max(recieved_data[0])
+                            case 2:
+                                APPS2.update_min(recieved_data[0])
+                            case 3:
+                                APPS2.update_max(recieved_data[0])
+                            case 4:
+                                APPS3.update_min(recieved_data[0])
+                            case 5:
+                                APPS3.update_max(recieved_data[0])
+                            case 6:
+                                APPS4.update_min(recieved_data[0])
+                            case 7:
+                                APPS4.update_max(recieved_data[0])
+                            case _:
+                                pass
+                    case _:
+                        pass
 
         except canlib.CanNoMsg:
             pass 

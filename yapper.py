@@ -3,7 +3,7 @@ from canlib import canlib, Frame
 from canlib.canlib import ChannelData
 
 def setUpChannel(channel=1,
-                 openFlags=canlib.Open.ACCEPT_VIRTUAL,
+                 openFlags=0,
                  outputControl=canlib.Driver.NORMAL):
     ch = canlib.openChannel(channel, openFlags, bitrate=canlib.Bitrate.BITRATE_1M)
     print("Using channel: %s, EAN: %s" % (ChannelData(channel).channel_name,
