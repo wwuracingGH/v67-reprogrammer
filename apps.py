@@ -4,7 +4,7 @@
 import math
 import dearpygui.dearpygui as dpg
 
-DEADBAND = 10
+DEADBAND = 30
 
 def quick_remap(a1,a2,b1,b2,t):
     if (t is None): return 0
@@ -33,7 +33,10 @@ class APPS_Display():
         print(newval)
         self.max = newval
         self.recalc_render()
-        
+
+    def set_reversed(self, newval=None):
+        dpg.set_value(self.swap_check, newval)
+
     def recalc_render(self):
         new_maxy = quick_remap( 0, 4092, 300, 0, self.max)
         new_miny = quick_remap( 0, 4092, 300, 0, self.min)
@@ -86,7 +89,7 @@ class APPS_Display():
             with dpg.group():
                 self.name_text = dpg.add_text(name)
                 self.val_text = dpg.add_text("0%")
-                self.swap_check = dpg.add_checkbox(label="Reverse Min/Max")
+                self.swap_check = dpg.add_checkbox(label="Reversed")
                 
                 with dpg.group(horizontal=True):
                     self.slider = dpg.add_slider_int(vertical=True, max_value=4092, height=300, width=50, callback = self.update_slider)
