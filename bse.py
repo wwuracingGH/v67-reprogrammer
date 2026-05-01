@@ -11,15 +11,31 @@ def quick_remap(a1,a2,b1,b2,t):
 class BSE_Display():
     def update_slider(self):
         self.val = dpg.get_value(self.slider)
-        
-    def update_min(self):
-        self.min = dpg.get_value(self.min_tb)
-        self.recalc_render()
-    
-    def update_max(self):
-        self.max = dpg.get_value(self.max_tb)
+
+    def get_min(self):
+        return self.min
+
+    def get_max(self):
+        return self.min
+
+    def update_min(self, newval=None):
+        if (newval is None):
+            newval = dpg.get_value(self.min_tb)
+        else:
+            dpg.set_value(self.min_tb, newval)
+
+        self.min = newval
         self.recalc_render()
 
+    def update_max(self, newval=None):
+        if (newval is None):
+            newval = dpg.get_value(self.max_tb)
+        else:
+            dpg.set_value(self.max_tb, newval)
+        print(newval)
+        self.max = newval
+        self.recalc_render()
+    
     def recalc_render(self):
         new_maxy = quick_remap( 0, 4092, 300, 0, self.max)
         new_miny = quick_remap( 0, 4092, 300, 0, self.min)
@@ -62,5 +78,5 @@ class BSE_Display():
                         self.min_line = dpg.draw_line((0,300), (30,300), thickness=4)
                         self.max_line = dpg.draw_line((0, 0), (30, 0), thickness=4)
                 
-                self.min_tb = dpg.add_drag_int(label="HARD", width=60, max_value=4092, callback=self.update_min)
-                self.max_tb = dpg.add_drag_int(label="MIN", width=60, max_value=4092, callback=self.update_max)
+                self.min_tb = dpg.add_drag_int(label="MIN", width=60, max_value=4092, callback=self.update_min)
+                self.max_tb = dpg.add_drag_int(label="HARD", width=60, max_value=4092, callback=self.update_max)

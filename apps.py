@@ -4,7 +4,10 @@
 import math
 import dearpygui.dearpygui as dpg
 
+DEADBAND = 30
+
 def quick_remap(a1,a2,b1,b2,t):
+    if (t is None): return 0
     if a1 == a2: return 0
     if a1 == None or a2 == None: return 0
     return ((t - a1) / (a2 - a1)) * (b2 - b1) + b1     
@@ -13,14 +16,27 @@ class APPS_Display():
     def update_slider(self):
         self.val = dpg.get_value(self.slider)
         
-    def update_min(self):
-        self.min = dpg.get_value(self.min_tb)
+    def update_min(self, newval=None):
+        if (newval is None):
+            newval = dpg.get_value(self.min_tb)
+        else:
+            dpg.set_value(self.min_tb, newval)
+
+        self.min = newval
         self.recalc_render()
 
-    def update_max(self):
-        self.max = dpg.get_value(self.max_tb)
+    def update_max(self, newval=None):
+        if (newval is None):
+            newval = dpg.get_value(self.max_tb)
+        else:
+            dpg.set_value(self.max_tb, newval)
+        print(newval)
+        self.max = newval
         self.recalc_render()
-        
+
+    def set_reversed(self, newval=None):
+        dpg.set_value(self.swap_check, newval)
+
     def recalc_render(self):
         new_maxy = quick_remap( 0, 4092, 300, 0, self.max)
         new_miny = quick_remap( 0, 4092, 300, 0, self.min)
@@ -39,8 +55,8 @@ class APPS_Display():
             self.val = new_val
             
         if calibrating:
-            self.min = min(self.min, self.val)
-            self.max = max(self.max, self.val)
+            self.min = min(self.min, self.val + DEADBAND)
+            self.max = max(self.max, self.val - DEADBAND)
             
             dpg.set_value(self.min_tb, self.min)
             dpg.set_value(self.max_tb, self.max)
@@ -52,6 +68,18 @@ class APPS_Display():
         self.min = 4096
         self.max = 0 
     
+    def get_max(self):
+        if dpg.get_value(self.swap_check):
+            return self.min
+        else:
+            return self.max
+        
+    def get_min(self):
+        if dpg.get_value(self.swap_check):
+            return self.max
+        else:
+            return self.min
+    
     def __init__(self, name):
         self.min = 0
         self.max = 4096
@@ -61,6 +89,7 @@ class APPS_Display():
             with dpg.group():
                 self.name_text = dpg.add_text(name)
                 self.val_text = dpg.add_text("0%")
+                self.swap_check = dpg.add_checkbox(label="Reversed")
                 
                 with dpg.group(horizontal=True):
                     self.slider = dpg.add_slider_int(vertical=True, max_value=4092, height=300, width=50, callback = self.update_slider)
