@@ -2,6 +2,7 @@
 # need to figure out how the VCU handles this first 
 
 import dearpygui.dearpygui as dpg
+import math
 
 def quick_remap(a1,a2,b1,b2,t):
     if a1 == a2: return 0
@@ -42,7 +43,12 @@ class BSE_Display():
 
         dpg.configure_item(self.min_line, p1=(0, new_miny), p2=(20, new_miny))
         dpg.configure_item(self.max_line, p1=(0, new_maxy), p2=(20, new_maxy))
-        
+
+        bar = math.floor(quick_remap(self.min, self.max, 0, 1500, self.val)) / 10
+        if bar < 0:
+            bar = 0
+
+        dpg.set_value(self.val_text, str(bar) + "bar")
         
     def update_vals(self, calibrating = False, new_val = None):
         if new_val is not None:
@@ -71,7 +77,8 @@ class BSE_Display():
         with dpg.group(horizontal=True):
             with dpg.group():
                 self.name_text = dpg.add_text(name)
-                 
+
+                self.val_text = dpg.add_text("0bar")
                 with dpg.group(horizontal=True):
                     self.slider = dpg.add_slider_int(vertical=True, max_value=4092, height=300, width=50, callback = self.update_slider)
                     with dpg.drawlist(pos = [0, 0], width = 70, height = 300):

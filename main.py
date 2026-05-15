@@ -65,7 +65,7 @@ def process_control_vector_message(display_item, frame_data):
     if((vector_vals[0] & (0x1 << 15) ) > 0):
         flags+="APPS Bounds,"
 
-    control_vector_display_string = "Flags: " + flags + "\nTorque Request: " + str(vector_vals[1]) + "\nRear Brake Pressure: " + str(vector_vals[2]) + "\nFront Brake Pressure: " + str(vector_vals[3])
+    control_vector_display_string = "Flags: " + flags + "\nTorque Request: " + str(vector_vals[1]) + "\nRear Brake Pressure: " + str(float(int(10 * vector_vals[2] * (brake_bias / 65535))) / 10) + "\nFront Brake Pressure: " + str(float(int(10 * vector_vals[2] * ((65535 - brake_bias) / 65535))) / 10)
     dpg.set_value(display_item, control_vector_display_string)
 
 def process_vcu_state_message(display_item, frame_data):
@@ -200,12 +200,12 @@ if __name__ == '__main__':
                         bse_vals = struct.unpack("<2H", frame.data)
                         FBSE.update_vals(new_val=bse_vals[0])
                         RBSE.update_vals(new_val=bse_vals[1])
-                        if (dpg.get_value(cb)):
-                            fbse_fr = (bse_vals[0] - FBSE.min) / ((FBSE.max - FBSE.min) + 1)
-                            rbse_fr = (bse_vals[0] - RBSE.min) / ((FBSE.max - FBSE.min) + 1)
-                            brake_bias_fr = fbse_fr / (rbse_fr + fbse_fr)
-                            brake_bias = brake_bias_fr * 65536
-                            dpg.set_value(brake_bias_txt, "Brake Bias: " + str(round((brake_bias*1000)/65536)/10) + "%")
+                        #if (dpg.get_value(cb)):
+                        #    fbse_fr = (bse_vals[0] - FBSE.min) / ((FBSE.max - FBSE.min) + 1)
+                        #    rbse_fr = (bse_vals[0] - RBSE.min) / ((FBSE.max - FBSE.min) + 1)
+                        #    brake_bias_fr = fbse_fr / (rbse_fr + fbse_fr)
+                        #    brake_bias = brake_bias_fr * 65536
+                        #    dpg.set_value(brake_bias_txt, "Brake Bias: " + str(round((brake_bias*1000)/65536)/10) + "%")
                     case 0x103:
                         process_control_vector_message(control_vector, frame.data)
                     case 0x104:
